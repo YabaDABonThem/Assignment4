@@ -1,3 +1,8 @@
+// Allen Bao
+// CS 211
+// 1/24/2022
+
+
 // This program reads an input file of preferences and find a stable marriage
 // scenario.  The algorithm gives preference to either men or women depending
 // upon whether this call is made from main:
@@ -45,11 +50,51 @@ public class StableMarriage {
         return result;
     }
 
-    public static void makeMatches(List<Person> list1, List<Person> list2) {
-	//------------------------------------
-        // Implement your code here
-        
-	//------------------------------------
+    public static void makeMatches(List<Person> males, List<Person> females) {
+
+        // Go through both lists of people and set everyone to be free
+        for(Person m : males) {
+            m.erasePartner();
+        }
+        for(Person f : females) {
+            f.erasePartner();
+        }
+
+        while (true) { // call method that returns true if there's a free man
+            Person m = findFirstFreePerson(males);
+
+            if (m == null) {
+                break; // break the loop if there are no more free males
+            }
+
+            Person w = females.get(m.getFirstChoice());
+
+            if (w.hasPartner()) { // if a man is engaged to w, separate them
+                males.get(w.getPartner()).erasePartner();
+            }
+
+            // set m and w to be engaged with each other
+            m.setPartner(females.indexOf(w));
+            w.setPartner(males.indexOf(m));
+
+            // delete m and w's successors off each other's lists.
+            for (int i = w.getPartnerRank()-1, j = i; i < w.getChoices().size(); ++i) {
+                w.getChoices().remove(j);
+            }
+            for (int i = m.getPartnerRank()-1, j = i; i < m.getChoices().size(); ++i) {
+                m.getChoices().remove(j);
+            }
+        }
+
+    }
+
+    private static Person findFirstFreePerson(List<Person> people) {
+        for (Person p : people) {
+            if (!p.hasPartner()) {
+                return p;
+            }
+        }
+        return null;
     }
 
     public static void writeList(List<Person> list1,  List<Person> list2,
