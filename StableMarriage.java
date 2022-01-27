@@ -2,7 +2,6 @@
 // CS 211
 // 1/24/2022
 
-
 // This program reads an input file of preferences and find a stable marriage
 // scenario.  The algorithm gives preference to either men or women depending
 // upon whether this call is made from main:
@@ -17,9 +16,9 @@ public class StableMarriage {
     public static final String LIST_END = "END";
 
     public static void main(String[] args) throws FileNotFoundException {
-        Scanner console = new Scanner(System.in);
+        //Scanner console = new Scanner(System.in);
         System.out.print("What is the input file? ");
-        String fileName = console.nextLine();
+        String fileName = "short.dat"; //console.nextLine();
         Scanner input = new Scanner(new File(fileName));
         System.out.println();
 
@@ -78,11 +77,14 @@ public class StableMarriage {
             w.setPartner(males.indexOf(m));
 
             // delete m and w's successors off each other's lists.
-            for (int i = w.getPartnerRank()-1, j = i; i < w.getChoices().size(); ++i) {
-                w.getChoices().remove(j);
-            }
-            for (int i = m.getPartnerRank()-1, j = i; i < m.getChoices().size(); ++i) {
-                m.getChoices().remove(j);
+            // first we delete w from all m's successors, because that will not change the length of w's preferences.
+            if (w.getPartnerRank() < w.getChoices().size()) {
+                for (int q : w.getChoices().subList(w.getPartnerRank(), w.getChoices().size())) {
+                    // how to remove the choice (w) from their choices list?
+                    males.get(q).erasePartner();
+                }
+
+                w.getChoices().removeAll(w.getChoices().subList(w.getPartnerRank(), w.getChoices().size()));
             }
         }
 
