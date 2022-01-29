@@ -84,10 +84,10 @@ public class StableMarriage {
             // we break up w's choice list using subList, and go through all the men after m
             // we use int to represent the men, because they are stored as ints on w's list
             for (int q : w.getChoices().subList(mIndex+1, w.getChoices().size())) {
-                // we access an instance of each man and remove w from their preference list
+                // we call a private method that deletes all the choices after a certain
                 deleteChoice(males.get(q), woman);
             }
-            // Remove all m's successors from w's preferences list.
+            // Remove all m's successors from w's preferences list using the private method we coded
             deleteAfterwardsChoices(w, man);
         }
     }
@@ -105,19 +105,23 @@ public class StableMarriage {
         return null;
     }
 
+    // private method to delete a certain Person off someone's choice list
     private static void deleteChoice(Person p, int choice) {
+        // use an iterator to delete to avoid modifying the ArrayList while iterating it
         Iterator<Integer> itr = p.getChoices().iterator();
 
+        // Go through all the people in the choice list and delete the matching Person.
         while (itr.hasNext()) {
             Integer number = itr.next();
 
             if (number == choice) {
                 itr.remove();
-                return;
+                return; // empty return on void method works
             }
         }
     }
 
+    // private method to delete everyone after a certain choice on a person's list
     private static void deleteAfterwardsChoices(Person p, int choice) {
         Iterator<Integer> itr = p.getChoices().iterator();
 
