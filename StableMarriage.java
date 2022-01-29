@@ -60,14 +60,8 @@ public class StableMarriage {
             f.erasePartner();
         }
 
-        while (true) { // call method that returns true if there's a free man
-            // Assign variable to hold first free male
-            Person m = findFirstFreePerson(males);
-
-            if (m == null) {
-                break; // break the loop if there are no more free males
-            }
-
+        Person m = null;
+        while ((m = findFirstFreePerson(males)) != null) { // call method that returns true if there's a free man
             // get the first woman on m's like to pair them with each other
             Person w = females.get(m.getFirstChoice());
 
@@ -76,25 +70,26 @@ public class StableMarriage {
             }
 
             // set m and w to be engaged with each other
-            m.setPartner(females.indexOf(w));
-            w.setPartner(males.indexOf(m));
+            int man = males.indexOf(m);
+            int woman = females.indexOf(w);
+            m.setPartner(woman);
+            w.setPartner(man);
 
             // delete m and w's successors off each other's lists.
             // first we delete w from all m's successors, because that will not change the length of w's preferences.
             // we need to start from the man after m on w's list, but also need to make sure that it's less than the
             // actual size of the list, or else it'd go out of bounds
-            if (w.getPartnerRank() < w.getChoices().size()) {
-                // we break up w's choice list using subList, and go through all the men after m
-                // we use int to represent the men, because they are stored as ints on w's list
-                for (int q : w.getChoices().subList(w.getPartnerRank(), w.getChoices().size())) {
-                    // we access an instance of each man and remove w from their preference list
-                    males.get(q).getChoices().remove(Integer.valueOf(females.indexOf(w)));
-                }
-                // Remove all m's successors from w's preferences list.
-                w.getChoices().removeAll(w.getChoices().subList(w.getPartnerRank(), w.getChoices().size()));
-            }
-        }
+            int mIndex = w.getChoices().indexOf(man);
 
+            // we break up w's choice list using subList, and go through all the men after m
+            // we use int to represent the men, because they are stored as ints on w's list
+            for (int q : w.getChoices().subList(mIndex+1, w.getChoices().size())) {
+                // we access an instance of each man and remove w from their preference list
+                deleteChoice(males.get(q), woman);
+            }
+            // Remove all m's successors from w's preferences list.
+            deleteAfterwardsChoices(w, man);
+        }
     }
 
     // private method to determine whether we should continue making matches
@@ -108,6 +103,33 @@ public class StableMarriage {
         }
         // if everyone is taken and no new matches can be made, return null
         return null;
+    }
+
+    private static void deleteChoice(Person p, int choice) {
+        Iterator<Integer> itr = p.getChoices().iterator();
+
+        while (itr.hasNext()) {
+            Integer number = itr.next();
+
+            if (number == choice) {
+                itr.remove();
+                return;
+            }
+        }
+    }
+
+    private static void deleteAfterwardsChoices(Person p, int choice) {
+        Iterator<Integer> itr = p.getChoices().iterator();
+
+        boolean startDelete = false;
+        while (itr.hasNext()) {
+            if (startDelete) {
+                itr.next();
+                itr.remove();
+            } else {
+                startDelete = (itr.next() == choice);
+            }
+        }
     }
 
     public static void writeList(List<Person> list1,  List<Person> list2,
